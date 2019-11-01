@@ -8,6 +8,6 @@ namespace ElecLibrary
         IEnumerable<Acta> GetActasXMesa(string numeroMesa);
         IEnumerable<Acta> GetActasXRecinto(string recinto);
         IEnumerable<Acta> GetAllActas();
-        int InsertActa(Acta acta);
+        long InsertActa(Acta acta);
     }
 }

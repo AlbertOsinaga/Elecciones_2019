@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
 using Dapper;
+using System.Linq;
 
 namespace ElecLibrary
 {
@@ -107,14 +108,14 @@ namespace ElecLibrary
             }
         }
 
-        public int InsertActa(Acta acta)
+        public long InsertActa(Acta acta)
         {
             if(acta == null)
                 return 0;
             using(var cnn = GetDbConnection())
             {
                 cnn.Open();
-                int actaId = cnn.Execute($@"INSERT INTO Actas (Pais,NumeroDepartamento,Departamento,Provincia,
+                long actaId = cnn.Query<long>($@"INSERT INTO Actas (Pais,NumeroDepartamento,Departamento,Provincia,
                                                 NumeroMunicipio,Municipio,Circunscripcion,Localidad,Recinto,
                                                 NumeroMesa,CodigoMesa,Eleccion,Inscritos,
                                                 CC,FPV,MTS,UCS,MAS_IPSP,F21,PDC,MNR,PAN_BOL,
@@ -126,7 +127,7 @@ namespace ElecLibrary
                                                 @CC,@FPV,@MTS,@UCS,@MAS_IPSP,@F21,@PDC,@MNR,@PAN_BOL,
                                                 @VotosValidos,@Blancos,@Nulos,@EstadoActa,
                                                 @Fecha,@Origen,@TimeStamp,@Extras,@Otros)" + 
-                                        $@"; SELECT last_insert_rowid()", acta);
+                                        $@";SELECT last_insert_rowid()", acta).First();
                 return actaId;
             }
         }
