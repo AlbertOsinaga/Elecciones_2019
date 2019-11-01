@@ -1,0 +1,32 @@
+Id
+País
+Número departamento
+Departamento
+Provincia
+Número municipio
+Municipio
+Circunscripción
+Localidad
+Recinto
+Número Mesa
+Código Mesa
+Elección
+Inscritos
+CC
+FPV
+MTS
+UCS
+MAS - IPSP
+21F
+PDC
+MNR
+PAN-BOL
+Votos Válidos
+Blancos
+Nulos
+Estado acta
+Fecha
+Origen
+TimeStamp
+Extras
+Otros
