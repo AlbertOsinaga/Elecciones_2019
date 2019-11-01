@@ -1,6 +1,8 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Linq;
+using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.IO;
+using OfficeOpenXml;
 
 namespace ElecLibrary
 {
@@ -57,6 +59,7 @@ namespace ElecLibrary
                                                         int firstLinea = 1, 
                                                         int lastLinea = int.MaxValue)
         {
+            var lines = new List<string>();
             using(StreamReader sr = new StreamReader(fileName))
             {
                 string line = sr.ReadLine();
@@ -64,11 +67,13 @@ namespace ElecLibrary
                 while(line != null )
                 {
                     if(i >= firstLinea && i <= lastLinea)
-                        yield return line;
+                        lines.Add(line);
                     i++;
                     line = sr.ReadLine();
                 }
-            } 
+            }
+
+            return lines; 
         }
 
         public static string ReadHeader(string fileName)
@@ -95,101 +100,54 @@ namespace ElecLibrary
                 result = Directory.EnumerateFiles(path);
             return result;
         }
-        // static void convertExcelToCSV(string sourceFile, string worksheetName, string targetFile)
+        public static IEnumerable<string> ExcelToCSV(string excelPath)
+        {
+            //create a list to hold all the values
+            List<string> excelData = new List<string>();
 
-        // {
+            //read the Excel file as byte array
+            byte[] bin = File.ReadAllBytes(excelPath);
 
-        //     string strConn = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + sourceFile + ";Extended Properties=\" Excel.0;HDR=Yes;IMEX=1\""; 
+            //create a new Excel package in a memorystream
+            using (MemoryStream stream = new MemoryStream(bin))
+            using (ExcelPackage excelPackage = new ExcelPackage(stream))
+            {   
+                //first worksheet
+                ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets[1];
 
-        //     OleDbConnection conn = null;
+                //loop all rows
+                for (int i = worksheet.Dimension.Start.Row; i <= worksheet.Dimension.End.Row; i++)
+                {
+                    string row = "";
+                    
+                    //loop all columns in a row
+                    for (int j = worksheet.Dimension.Start.Column; j <= worksheet.Dimension.End.Column; j++)
+                    {
+                        //add the cell data to the List
+                        row += worksheet.Cells[i, j].Value != null ? worksheet.Cells[i, j].Value.ToString() : "";
+                        if(j < worksheet.Dimension.End.Column)
+                            row += ",";
+                    }
 
-        //     StreamWriter wrtr = null;
+                    excelData.Add(row);
+                }
 
-        //     OleDbCommand cmd = null;
+                return excelData;
+            }
+        }
+        public static void ExcelToCSVFile(string excelPath, string csvPath)
+        {
+            var lineasCsv = ExcelToCSV(excelPath);
+            if(lineasCsv == null || lineasCsv.Count() == 0)
+                return;
 
-        //     OleDbDataAdapter da = null; 
-
-        //     try
-
-        //     {
-
-        //         conn = new OleDbConnection(strConn);
-
-        //         conn.Open();
-
- 
-
-        //         cmd = new OleDbCommand("SELECT * FROM [" + worksheetName + "$]", conn);
-
-        //         cmd.CommandType = CommandType.Text;
-
-        //         wrtr = new StreamWriter(targetFile);
-
- 
-
-        //         da = new OleDbDataAdapter(cmd);
-
-        //         DataTable dt = new DataTable();
-
-        //         da.Fill(dt);
-
- 
-
-        //         for (int x = 0; x < dt.Rows.Count; x++)
-
-        //         {
-
-        //             string rowString = "";
-
-        //             for (int y = 0; y < dt.Columns.Count; y++)
-
-        //             {
-
-        //                 rowString += "\"" + dt.Rows[x][y].ToString() + "\",";
-
-        //             }
-
-        //             wrtr.WriteLine(rowString);
-
-        //         }
-
-        //         Console.WriteLine();
-
-        //         Console.WriteLine("Done! Your " + sourceFile + " has been converted into " + targetFile + ".");
-
-        //         Console.WriteLine();
-
-        //     }
-
-        //     catch (Exception exc)
-
-        //     {
-
-        //         Console.WriteLine(exc.ToString());
-
-        //         Console.ReadLine();
-
-        //     }
-
-        //     finally
-
-        //     {
-
-        //         if (conn.State == ConnectionState.Open)
-
-        //         conn.Close();
-
-        //         conn.Dispose();
-
-        //         cmd.Dispose();
-
-        //         da.Dispose();
-
-        //         wrtr.Close();
-
-        //         wrtr.Dispose();
-
-        //     }
-        // }
+            using(var writer = new StreamWriter(csvPath, append:false))
+            {
+                foreach (var linea in lineasCsv)
+                {
+                    writer.WriteLine(linea);
+                }
+            }
+        }
     }
 }
