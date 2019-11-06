@@ -8,13 +8,16 @@ namespace ElecLibrary
 {
     public static class CsvFile
     {
-        public static Acta GetActa(string rowActaCsv)
+        public static Acta GetActa(string rowActaCsv, string repoCsvName = "_")
         {
             if(string.IsNullOrWhiteSpace(rowActaCsv))
                 return null;
             string[] fields = rowActaCsv.Split(',');
-            if(fields.Length != 26)
+            if(fields.Length > 26 || fields.Length < 25)
                 return null;
+            
+            var nameKeys = Path.GetFileNameWithoutExtension(repoCsvName);
+            var origenFecha = nameKeys.Split('_');
 
             Acta acta = new Acta
             {
@@ -43,12 +46,185 @@ namespace ElecLibrary
                 VotosValidos = fields[22],
                 Blancos = fields[23],
                 Nulos = fields[24],
-                EstadoActa = fields[25]
+                EstadoActa = fields.Length > 25 ? fields[25] : "",
+                Origen = origenFecha.Length >= 2 ? origenFecha[0] : "",
+                Fecha =  origenFecha.Length >= 2 ? origenFecha[1] : ""
             };
 
             return acta;    
         }
 
+        public static Acta GetActaComp(string rowActaCsv, string repoCsvName = "_")
+        {
+            if(string.IsNullOrWhiteSpace(rowActaCsv))
+                return null;
+            string[] fields = rowActaCsv.Split(',');
+            if(fields.Length != 26)
+                return null;
+            
+            var nameKeys = Path.GetFileNameWithoutExtension(repoCsvName);
+            var origenFecha = nameKeys.Split('_');
+
+            Acta acta = new Acta
+            {
+                Pais = fields[0],
+                NumeroDepartamento = fields[1],
+                Departamento = fields[2],
+                Provincia = fields[3],
+                NumeroMunicipio = fields[4],
+                Municipio = fields[5],
+                Circunscripcion = fields[6],
+                Localidad = fields[7],
+                Recinto = fields[8],
+                NumeroMesa = fields[9],
+                CodigoMesa = fields[10],
+                Eleccion = fields[11],
+                Inscritos = fields[12],
+                CC = fields[13],
+                FPV = fields[14],
+                MTS = fields[15],
+                UCS = fields[16],
+                MAS_IPSP = fields[17],
+                F21 = fields[18],
+                PDC = fields[19],
+                MNR = fields[20],
+                PAN_BOL = fields[21],
+                VotosValidos = fields[22],
+                Blancos = fields[23],
+                Nulos = fields[24],
+                EstadoActa = fields.Length > 25 ? fields[25] : "",
+                Origen = origenFecha.Length >= 2 ? origenFecha[0] : "",
+                Fecha =  origenFecha.Length >= 2 ? origenFecha[1] : ""
+            };
+
+            return acta;    
+        }
+
+        public static Acta GetActaTrep(string rowActaCsv, string repoCsvName = "_")
+        {
+            if(string.IsNullOrWhiteSpace(rowActaCsv))
+                return null;
+            string[] fields = rowActaCsv.Split(',');
+            if(fields.Length != 25)
+                return null;
+            
+            var nameKeys = Path.GetFileNameWithoutExtension(repoCsvName);
+            var origenFecha = nameKeys.Split('_');
+
+            Acta acta = new Acta
+            {
+                Pais = fields[0],
+                NumeroDepartamento = fields[1],
+                Departamento = fields[2],
+                Provincia = fields[3],
+                NumeroMunicipio = fields[4],
+                Municipio = fields[5],
+                Circunscripcion = fields[6],
+                Localidad = fields[7],
+                Recinto = fields[8],
+                NumeroMesa = fields[9],
+                CodigoMesa = fields[10],
+                Eleccion = fields[11],
+                Inscritos = fields[12],
+                CC = fields[13],
+                FPV = fields[14],
+                MTS = fields[15],
+                UCS = fields[16],
+                MAS_IPSP = fields[17],
+                F21 = fields[18],
+                PDC = fields[19],
+                MNR = fields[20],
+                PAN_BOL = fields[21],
+                VotosValidos = fields[22],
+                Blancos = fields[23],
+                Nulos = fields[24],
+                EstadoActa = fields.Length > 25 ? fields[25] : "",
+                Origen = origenFecha.Length >= 2 ? origenFecha[0] : "",
+                Fecha =  origenFecha.Length >= 2 ? origenFecha[1] : ""
+            };
+
+            return acta;    
+        }
+
+        public static PgActaComp GetPgActaComp(string rowActaCsv, string repoCsvName = "_")
+        {
+            if(string.IsNullOrWhiteSpace(rowActaCsv))
+                return null;
+            string[] fields = rowActaCsv.Split(',');
+            if(fields.Length > 26)
+                return null;
+            
+            PgActaComp acta = new PgActaComp
+            {
+                pais = fields[0],
+                numero_departsmento = int.Parse(fields[1]),
+                departamento = fields[2],
+                provincia = fields[3],
+                numero_municipio = int.Parse(fields[4]),
+                municipio = fields[5],
+                circunscripcion = fields[6],
+                localidad = fields[7],
+                recinto = fields[8],
+                numero_mesa = int.Parse(fields[9]),
+                codigo_mesa = int.Parse(fields[10]),
+                eleccion = fields[11],
+                inscritos = int.Parse(fields[12]),
+                cc = int.Parse(fields[13]),
+                fpv = int.Parse(fields[14]),
+                mts = int.Parse(fields[15]),
+                ucs = int.Parse(fields[16]),
+                mas_ipsp = int.Parse(fields[17]),
+                _21f = int.Parse(fields[18]),
+                pdc = int.Parse(fields[19]),
+                mnr = int.Parse(fields[20]),
+                pan_bol = int.Parse(fields[21]),
+                votos_validos = int.Parse(fields[22]),
+                blancos = int.Parse(fields[23]),
+                nulos = int.Parse(fields[24]),
+                estado_acta = fields[25]
+            };
+
+            return acta;    
+        }
+        public static PgActaTrep GetPgActaTrep(string rowActaCsv, string repoCsvName = "_")
+        {
+            if(string.IsNullOrWhiteSpace(rowActaCsv))
+                return null;
+            string[] fields = rowActaCsv.Split(',');
+            if(fields.Length > 25)
+                return null;
+            
+            PgActaTrep acta = new PgActaTrep
+            {
+                pais = fields[0],
+                numero_departamento = int.Parse(fields[1]),
+                departamento = fields[2],
+                provincia = fields[3],
+                numero_municipio = int.Parse(fields[4]),
+                municipio = fields[5],
+                circunscripcion = fields[6],
+                localidad = fields[7],
+                recinto = fields[8],
+                numero_mesa = int.Parse(fields[9]),
+                codigo_mesa = int.Parse(fields[10]),
+                eleccion = fields[11],
+                inscritos = int.Parse(fields[12]),
+                cc = int.Parse(fields[13]),
+                fpv = int.Parse(fields[14]),
+                mts = int.Parse(fields[15]),
+                ucs = int.Parse(fields[16]),
+                mas_ipsp = int.Parse(fields[17]),
+                _21f = int.Parse(fields[18]),
+                pdc = int.Parse(fields[19]),
+                mnr = int.Parse(fields[20]),
+                pan_bol = int.Parse(fields[21]),
+                votos_validos = int.Parse(fields[22]),
+                blancos = int.Parse(fields[23]),
+                nulos = int.Parse(fields[24])
+            };
+
+            return acta;    
+        }
         public static string ReadAll(string fileName)
         {
             var memFile = File.ReadAllText(fileName);
@@ -100,6 +276,66 @@ namespace ElecLibrary
                 result = Directory.EnumerateFiles(path);
             return result;
         }
+        
+        public static (int validos, int total) CountCsvComputoFiles(string pathCsvFile)
+        {
+            int total = 0;
+            int validos = 0;
+            var files = GetAllFilenames(pathCsvFile, "*.csv");
+            foreach (var file in files)
+            {
+                total++;
+                if(IsCsvComputo(file))
+                    validos++;
+
+            }
+            return(validos, total);
+        }
+        public static (int validos, int total) CountCsvTrepFiles(string pathCsvFile)
+        {
+            int total = 0;
+            int validos = 0;
+            var files = GetAllFilenames(pathCsvFile, "*.csv");
+            foreach (var file in files)
+            {
+                total++;
+                if(IsCsvTrep(file))
+                    validos++;
+
+            }
+            return(validos, total);
+        }
+        public static (int eliminados, int total) DeleteCsvTrepFilesInvalidos(string pathCsvFile)
+        {
+            int total = 0;
+            int eliminados = 0;
+            var files = GetAllFilenames(pathCsvFile, "*.csv");
+            foreach (var file in files)
+            {
+                total++;
+                if(!IsCsvTrep(file))
+                {
+                    File.Delete(file);
+                    eliminados++;
+                }
+
+            }
+            return(eliminados, total);
+        }
+        public static bool IsCsvComputo(string pathCsvFile)
+        {
+            string header = ReadHeader(pathCsvFile);
+            var partes = header.Split(',');
+            return partes.Length == 26;
+        }
+        public static bool IsCsvTrep(string pathCsvFile)
+        {
+            string header = ReadHeader(pathCsvFile);
+            var partes = header.Split(',');
+            return partes.Length == 25;
+        }
+
+
         public static IEnumerable<string> ExcelToCSV(string excelPath)
         {
             //create a list to hold all the values
@@ -112,8 +348,16 @@ namespace ElecLibrary
             using (MemoryStream stream = new MemoryStream(bin))
             using (ExcelPackage excelPackage = new ExcelPackage(stream))
             {   
-                //first worksheet
-                ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets[1];
+                ExcelWorksheet worksheet = null;
+                try
+                {
+                    //first worksheet
+                    worksheet = excelPackage.Workbook.Worksheets[1];
+                }
+                catch (System.Exception)
+                {
+                    return null;
+                }
 
                 //loop all rows
                 for (int i = worksheet.Dimension.Start.Row; i <= worksheet.Dimension.End.Row; i++)
@@ -138,8 +382,16 @@ namespace ElecLibrary
         public static void ExcelToCSVFile(string excelPath, string csvPath)
         {
             var lineasCsv = ExcelToCSV(excelPath);
-            if(lineasCsv == null || lineasCsv.Count() == 0)
+            if(lineasCsv == null)
+            {
+                System.Console.WriteLine($"*** Archivo null: {excelPath}");
                 return;
+            } 
+            if(lineasCsv.Count() == 0)
+            {
+                System.Console.WriteLine($"*** Archivo vacio: {excelPath}");
+                return;
+            }
 
             using(var writer = new StreamWriter(csvPath, append:false))
             {

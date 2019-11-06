@@ -22,22 +22,20 @@ namespace ElecLibrary
 
         public void CreateSQLiteDB(string dbFileName)
         {
-            if(dbFileName == null)
-                return;
-
+            DbFileName = dbFileName;
             using(var cnn = GetDbConnection())
             {
                 cnn.Open();
             } 
         }
 
-        public void CreateSQLiteActasTable()
+        public void CreateSQLiteActasTable(string tableName = "Actas")
         {
             using (var cnn = GetDbConnection())
             {
                 cnn.Open();
                 cnn.Execute(
-                @"create table Actas
+                $@"CREATE TABLE IF NOT EXISTS {tableName}
                 (
                     Id                  integer primary key AUTOINCREMENT,
                     Pais                varchar(100),
@@ -83,39 +81,39 @@ namespace ElecLibrary
 
         #region IElecRepository
 
-        public Acta GetActa(int id)
+        public Acta GetActa(int id, string tableName = "Actas")
         {
             throw new System.NotImplementedException();
         }
 
-        public IEnumerable<Acta> GetActasXMesa(string numeroMesa)
+        public IEnumerable<Acta> GetActasXMesa(string numeroMesa, string tableName = "Actas")
         {
             throw new System.NotImplementedException();
         }
 
-        public IEnumerable<Acta> GetActasXRecinto(string recinto)
+        public IEnumerable<Acta> GetActasXRecinto(string recinto, string tableName = "Actas")
         {
             throw new System.NotImplementedException();
         }
 
-        public IEnumerable<Acta> GetAllActas()
+        public IEnumerable<Acta> GetAllActas(string tableName = "Actas")
         {
             using(var cnn = GetDbConnection())
             {
                 cnn.Open();
-                IEnumerable<Acta> query = cnn.Query<Acta>("SELECT * FROM Actas");
+                IEnumerable<Acta> query = cnn.Query<Acta>($"SELECT * FROM {tableName}");
                 return query;
             }
         }
 
-        public long InsertActa(Acta acta)
+        public long InsertActa(Acta acta, string tableName = "Actas")
         {
             if(acta == null)
                 return 0;
             using(var cnn = GetDbConnection())
             {
                 cnn.Open();
-                long actaId = cnn.Query<long>($@"INSERT INTO Actas (Pais,NumeroDepartamento,Departamento,Provincia,
+                long actaId = cnn.Query<long>($@"INSERT INTO {tableName} (Pais,NumeroDepartamento,Departamento,Provincia,
                                                 NumeroMunicipio,Municipio,Circunscripcion,Localidad,Recinto,
                                                 NumeroMesa,CodigoMesa,Eleccion,Inscritos,
                                                 CC,FPV,MTS,UCS,MAS_IPSP,F21,PDC,MNR,PAN_BOL,
