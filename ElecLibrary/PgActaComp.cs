@@ -3,7 +3,7 @@ namespace ElecLibrary
     public class PgActaComp
     {
         public string pais { get; set; }
-        public int numero_departsmento { get; set; }
+        public int numero_departamento { get; set; }
         public string departamento { get; set; }
         public string provincia { get; set; }
         public int numero_municipio { get; set; }
@@ -31,7 +31,7 @@ namespace ElecLibrary
 
         public override string ToString()
         {
-            return $"pais: {pais}\nnumero departamento: {numero_departsmento}\ndepartamento: {departamento}\nprovincia: {provincia}" + 
+            return $"pais: {pais}\nnumero departamento: {numero_departamento}\ndepartamento: {departamento}\nprovincia: {provincia}" + 
                     $"\nnumero municipio: {numero_municipio}\nmunicipio: {municipio}\ncircunscripcion: {circunscripcion}\nlocalidad: {localidad}\nrecinto: {recinto}" +
                     $"\nnumero mesa: {numero_mesa}\ncodigo_mesa: {codigo_mesa}\neleccion: {eleccion}\ninscritos: {inscritos}\ncc: {cc}\nfpv: {fpv}\nmts: {mts}" +
                     $"\nucs: {ucs}\nmas_ipsp: {mas_ipsp}\n21f: {_21f}\npdc: {pdc}\nMNR: {mnr}\npan_bol: {pan_bol}\nvotos_validos: {votos_validos}" +

@@ -6,54 +6,39 @@ namespace ElecConsole
 {
     class Program
     {
+        #region Properties
+        static string StrCnn = "Server=durkteel.cbtk6v6dl75j.us-east-1.rds.amazonaws.com;" + 
+                                "Port=5432;Database=durkteel;" + 
+                                "User id=laos;Password=KP/QU3rT*VmmR2TY";
+        static StreamWriter Writer = null;
+        static string PathWriter = "null";
+        static bool WriterIsOpen = false;
+        #endregion
+
         static void Main(string[] args)
         {
             System.Console.WriteLine();
             Console.WriteLine("Programa 'Elecciones 2019'");
             System.Console.WriteLine();
 
-            System.Console.WriteLine($"Inicio proceso: {DateTime.Now.ToString()}");
+            DateTime inicio = DateTime.Now;
+            System.Console.WriteLine($"Inicio proceso: {inicio}");
             System.Console.WriteLine();
 
-            // InsertAllReposCsvToDB("/Volumes/easystore/Dropbox/EReportes/eleccion.db", 
-            //                         "/Volumes/easystore/Dropbox/EReportes/Trep");
 
-            // ListAllActas("/Volumes/easystore/Dropbox/EReportes/elec.db", 
-            //                     "Actas_trep_2019_10_20_11_34_57");
+            // InsertTrepCsvToPg("/Volumes/easystore/Dropbox/EReportes/Trep/trep_2019.10.20.11.34.57.csv");
+            // CopyCsvCompToPg("/Volumes/easystore/Dropbox/EReportes/Computo/trep_2019.10.25.21.06.30.csv");
+            InsertCompCsvToPg("/Volumes/easystore/Dropbox/EReportes/Computo/trep_2019.10.25.21.06.30.csv");
 
-            // InsertRepoCsvToDB("/Volumes/easystore/Dropbox/EReportes/elec.db", 
-            //                     "Actas_trep_2019_10_20_11_34_57", 
-            //                     "/Volumes/easystore/Dropbox/EReportes/Trep/trep_2019.10.20.11.34.57.csv");
-
-            // FilesCsvList("/Volumes/easystore/Dropbox/EReportes/Computo", withoutExtension:false);
-            // FilesCsvList("/Volumes/easystore/Dropbox/EReportes/Trep", withoutExtension:false);
-
-            // FilesExcelToCsv("/Volumes/easystore/Dropbox/Reports/Computo", 
-            //                         "/Volumes/easystore/Dropbox/EReportes/Computo");
-
-            // var result = CsvFile.CountCsvComputoFiles("/Volumes/easystore/Dropbox/EReportes/Computo");
-            // System.Console.WriteLine($"Validos = {result.validos}, Total = {result.total}");
-
-            // var result = CsvFile.CountCsvTrepFiles("/Volumes/easystore/Dropbox/EReportes/Trep");
-            // System.Console.WriteLine($"Validos = {result.validos}, Total = {result.total}");
-
-            // var result = CsvFile.DeleteCsvTrepFilesInvalidos("/Volumes/easystore/Dropbox/EReportes/Trep");
-            // System.Console.WriteLine($"Eliminados = {result.eliminados}, Total = {result.total}");
-
-            // string strCnn = "Server=durkteel.cbtk6v6dl75j.us-east-1.rds.amazonaws.com;" + 
-            //                 "Port=5432;Database=durkteel;" + 
-            //                 "User id=laos;Password=KP/QU3rT*VmmR2TY";
-            // ElecPgRepository dbRepo = new ElecPgRepository(strCnn);
-            // dbRepo.CreatePgActaTrepTable();                
-
-            // FilesExcelToCsv("/Volumes/easystore/Dropbox/Reports/Errados/T", 
-            //                         "/Volumes/easystore/Dropbox/EReportes/Trep");
-
+            DateTime final = DateTime.Now;
             System.Console.WriteLine();
-            System.Console.WriteLine($"Fin de proceso: {DateTime.Now.ToString()}");
-
+            System.Console.WriteLine($"Fin de proceso: {final}");
+            TimeSpan duracion = final - inicio;
+            Console.WriteLine($"Duracion: {duracion.ToString()}");
             System.Console.WriteLine();
         }
+
+        #region Methods
 
         static void FilesCsvList(string path,  bool withoutExtension = true)
         {
@@ -94,6 +79,30 @@ namespace ElecConsole
                 }
             }
         }
+        static void CopyCsvCompToPg(string csvPath, string schema = "raw_reports")
+        {
+            var tableName = Path.GetFileNameWithoutExtension(csvPath);
+            tableName = tableName.Replace("report_","");
+            tableName = tableName.Replace("trep_","");
+            tableName = "acta_comp_" + tableName;
+            tableName = tableName.Replace('.', '_');
+            using(ElecPgRepository dbRepo = new ElecPgRepository(StrCnn))
+            {
+                dbRepo.CreatePgActaCompTable(tableName, schema);
+
+                PathWriter = $"/Volumes/easystore/Dropbox/Temp/copy_{tableName}.txt";
+                WriterOpen();
+                WriteLine($"Database: durkteel");
+                WriteLine($"Tabla: {schema}.{tableName}");
+                WriteLine($"Copiando reporte: {csvPath}");
+                WriteLine("--------------------------------------------------------------");
+
+                int ret = dbRepo.CopyCsvCompToPg(csvPath, tableName);
+                WriteLine($"Filas insertadas: {ret}");
+                WriteLine("");
+                WriterClose();
+            }
+        }
         static void InsertAllReposCsvToDB(string dbPath, string csvPath)
         {
             var fileNames = CsvFile.GetAllFilenames(csvPath, "csv");
@@ -106,13 +115,13 @@ namespace ElecConsole
         }
         static void InsertRepoCsvToDB(string dbPath, string tableName, string repoCsvName)
         {
-            var dbRepo = new ElecRepository(dbPath);
-            dbRepo.CreateSQLiteActasTable(tableName);
             var lines = CsvFile.ReadAllLines(repoCsvName, 2);
             System.Console.WriteLine($"Database: {dbPath}");
             System.Console.WriteLine($"Tabla: {tableName}");
             System.Console.WriteLine($"Insertando reporte: {repoCsvName}");
             System.Console.WriteLine("--------------------------------------------------------------");
+            var dbRepo = new ElecRepository(dbPath);
+            dbRepo.CreateSQLiteActasTable(tableName);
             foreach (var linea in lines)
             {
                 Acta acta = CsvFile.GetActa(linea, repoCsvName);
@@ -120,6 +129,68 @@ namespace ElecConsole
                 System.Console.WriteLine($"Acta insertada: {actaId}");
             }
             System.Console.WriteLine();
+        }
+        static void InsertCompCsvToPg(string compCsvName, string schema = "raw_reports")
+        {
+            var tableName = Path.GetFileNameWithoutExtension(compCsvName);
+            tableName = tableName.Replace("report_","");
+            tableName = tableName.Replace("trep_","");
+            tableName = "acta_comp_" + tableName;
+            tableName = tableName.Replace('.', '_');
+            PathWriter = $"/Volumes/easystore/Dropbox/Temp/{tableName}.txt";
+            WriterOpen();
+            WriteLine($"Database: durkteel");
+            WriteLine($"Tabla: {schema}.{tableName}");
+            WriteLine($"Insertando reporte: {compCsvName}");
+            WriteLine("--------------------------------------------------------------");
+            using(ElecPgRepository dbRepo = new ElecPgRepository(StrCnn))
+            {
+                dbRepo.CreatePgActaCompTable(tableName, schema);
+                var lines = CsvFile.ReadAllLines(compCsvName, 2);
+                int i = 0;
+                foreach (var linea in lines)
+                {
+                    PgActaComp acta = CsvFile.GetPgActaComp(linea, compCsvName);
+                    long ret = dbRepo.InsertPgActaComp(acta, tableName, schema);
+                    if(ret == 1)
+                        WriteLine($"Acta insertada: {++i}");
+                    else
+                        WriteLine($"Acta no insertada (ret={ret}): {++i}");
+                }
+                WriteLine("");
+                WriterClose();
+            }
+        }
+        static void InsertTrepCsvToPg(string trepCsvName, string schema = "raw_reports")
+        {
+            var tableName = Path.GetFileNameWithoutExtension(trepCsvName);
+            tableName = tableName.Replace("report_","");
+            tableName = tableName.Replace("trep_","");
+            tableName = "acta_trep_" + tableName;
+            tableName = tableName.Replace('.', '_');
+            PathWriter = $"/Volumes/easystore/Dropbox/Temp/{tableName}.txt";
+            WriterOpen();
+            WriteLine($"Database: durkteel");
+            WriteLine($"Tabla: {schema}.{tableName}");
+            WriteLine($"Insertando reporte: {trepCsvName}");
+            WriteLine("--------------------------------------------------------------");
+            var lines = CsvFile.ReadAllLines(trepCsvName, 2);
+            int i = 0;
+            using(ElecPgRepository dbRepo = new ElecPgRepository(StrCnn))
+            {
+                dbRepo.CreatePgActaTrepTable(tableName, schema);
+                foreach (var linea in lines)
+                {
+                    PgActaTrep acta = CsvFile.GetPgActaTrep(linea, trepCsvName);
+                    long ret = dbRepo.InsertPgActaTrep(acta, tableName, schema);
+                    if(ret == 1)
+                        WriteLine($"Acta insertada: {++i}");
+                    else
+                        WriteLine($"Acta no insertada (ret={ret}): {++i}");
+                }
+                WriteLine("");
+                WriterClose();
+            }
         }
         static void ListAllActas(string dbPath, string tableName)
         {
@@ -135,9 +206,42 @@ namespace ElecConsole
                 System.Console.WriteLine();
             }       
         }
-
         static void Garbage()
         {
+            // InsertAllReposCsvToDB("/Volumes/easystore/Dropbox/EReportes/eleccion.db", 
+            //                         "/Volumes/easystore/Dropbox/EReportes/Trep");
+
+            // ListAllActas("/Volumes/easystore/Dropbox/EReportes/elec.db", 
+            //                     "Actas_trep_2019_10_20_11_34_57");
+
+            // InsertRepoCsvToDB("/Volumes/easystore/Dropbox/EReportes/elec.db", 
+            //                     "Actas_trep_2019_10_20_11_34_57", 
+            //                     "/Volumes/easystore/Dropbox/EReportes/Trep/trep_2019.10.20.11.34.57.csv");
+
+            // FilesCsvList("/Volumes/easystore/Dropbox/EReportes/Computo", withoutExtension:false);
+            // FilesCsvList("/Volumes/easystore/Dropbox/EReportes/Trep", withoutExtension:false);
+
+            // FilesExcelToCsv("/Volumes/easystore/Dropbox/Reports/Computo", 
+            //                         "/Volumes/easystore/Dropbox/EReportes/Computo");
+
+            // var result = CsvFile.CountCsvComputoFiles("/Volumes/easystore/Dropbox/EReportes/Computo");
+            // System.Console.WriteLine($"Validos = {result.validos}, Total = {result.total}");
+
+            // var result = CsvFile.CountCsvTrepFiles("/Volumes/easystore/Dropbox/EReportes/Trep");
+            // System.Console.WriteLine($"Validos = {result.validos}, Total = {result.total}");
+
+            // var result = CsvFile.DeleteCsvTrepFilesInvalidos("/Volumes/easystore/Dropbox/EReportes/Trep");
+            // System.Console.WriteLine($"Eliminados = {result.eliminados}, Total = {result.total}");
+
+            // string strCnn = "Server=durkteel.cbtk6v6dl75j.us-east-1.rds.amazonaws.com;" + 
+            //                 "Port=5432;Database=durkteel;" + 
+            //                 "User id=laos;Password=KP/QU3rT*VmmR2TY";
+            // ElecPgRepository dbRepo = new ElecPgRepository(strCnn);
+            // dbRepo.CreatePgActaTrepTable();                
+
+            // FilesExcelToCsv("/Volumes/easystore/Dropbox/Reports/Errados/T", 
+            //                         "/Volumes/easystore/Dropbox/EReportes/Trep");
+
             // var name = Path.GetFileNameWithoutExtension("/Volumes/easystore/Dropbox/EReportes/Trep/trep_2019.10.20.11.34.57.csv");
             // var partes = name.Split('_');
             // if(partes.Length >= 2)
@@ -211,5 +315,27 @@ namespace ElecConsole
             //                         "/Volumes/easystore/Dropbox/EReportes/ExampleCnv.csv");
             // System.Console.WriteLine("Archivo convertido!");
         }
+        static void WriteLine(string linea)
+        {
+            if(!WriterIsOpen)
+            {
+                WriterOpen();
+            }
+            Writer.WriteLine(linea);
+            System.Console.WriteLine(linea);
+        }
+        static void WriterOpen()
+        {
+            Writer = new StreamWriter(PathWriter, append:false);
+            WriterIsOpen = true;
+        }
+        static void WriterClose()
+        {
+            Writer.Close();
+            Writer = null;
+            WriterIsOpen = false;
+        }
+
+        #endregion
     }
 }

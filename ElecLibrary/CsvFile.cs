@@ -99,7 +99,6 @@ namespace ElecLibrary
 
             return acta;    
         }
-
         public static Acta GetActaTrep(string rowActaCsv, string repoCsvName = "_")
         {
             if(string.IsNullOrWhiteSpace(rowActaCsv))
@@ -145,19 +144,18 @@ namespace ElecLibrary
 
             return acta;    
         }
-
         public static PgActaComp GetPgActaComp(string rowActaCsv, string repoCsvName = "_")
         {
             if(string.IsNullOrWhiteSpace(rowActaCsv))
                 return null;
             string[] fields = rowActaCsv.Split(',');
-            if(fields.Length > 26)
+            if(fields.Length != 26)
                 return null;
             
-            PgActaComp acta = new PgActaComp
+            var acta = new PgActaComp
             {
                 pais = fields[0],
-                numero_departsmento = int.Parse(fields[1]),
+                numero_departamento = int.Parse(fields[1]),
                 departamento = fields[2],
                 provincia = fields[3],
                 numero_municipio = int.Parse(fields[4]),
@@ -166,7 +164,7 @@ namespace ElecLibrary
                 localidad = fields[7],
                 recinto = fields[8],
                 numero_mesa = int.Parse(fields[9]),
-                codigo_mesa = int.Parse(fields[10]),
+                codigo_mesa = long.Parse(fields[10]),
                 eleccion = fields[11],
                 inscritos = int.Parse(fields[12]),
                 cc = int.Parse(fields[13]),
@@ -191,37 +189,35 @@ namespace ElecLibrary
             if(string.IsNullOrWhiteSpace(rowActaCsv))
                 return null;
             string[] fields = rowActaCsv.Split(',');
-            if(fields.Length > 25)
+            if(fields.Length != 25)
                 return null;
             
-            PgActaTrep acta = new PgActaTrep
-            {
-                pais = fields[0],
-                numero_departamento = int.Parse(fields[1]),
-                departamento = fields[2],
-                provincia = fields[3],
-                numero_municipio = int.Parse(fields[4]),
-                municipio = fields[5],
-                circunscripcion = fields[6],
-                localidad = fields[7],
-                recinto = fields[8],
-                numero_mesa = int.Parse(fields[9]),
-                codigo_mesa = int.Parse(fields[10]),
-                eleccion = fields[11],
-                inscritos = int.Parse(fields[12]),
-                cc = int.Parse(fields[13]),
-                fpv = int.Parse(fields[14]),
-                mts = int.Parse(fields[15]),
-                ucs = int.Parse(fields[16]),
-                mas_ipsp = int.Parse(fields[17]),
-                _21f = int.Parse(fields[18]),
-                pdc = int.Parse(fields[19]),
-                mnr = int.Parse(fields[20]),
-                pan_bol = int.Parse(fields[21]),
-                votos_validos = int.Parse(fields[22]),
-                blancos = int.Parse(fields[23]),
-                nulos = int.Parse(fields[24])
-            };
+            var acta = new PgActaTrep();
+                acta.pais = fields[0];
+                acta.numero_departamento = int.Parse(fields[1]);
+                acta.departamento = fields[2];
+                acta.provincia = fields[3];
+                acta.numero_municipio = int.Parse(fields[4]);
+                acta.municipio = fields[5];
+                acta.circunscripcion = fields[6];
+                acta.localidad = fields[7];
+                acta.recinto = fields[8];
+                acta.numero_mesa = int.Parse(fields[9]);
+                acta.codigo_mesa = long.Parse(fields[10]);
+                acta.eleccion = fields[11];
+                acta.inscritos = int.Parse(fields[12]);
+                acta.cc = int.Parse(fields[13]);
+                acta.fpv = int.Parse(fields[14]);
+                acta.mts = int.Parse(fields[15]);
+                acta.ucs = int.Parse(fields[16]);
+                acta.mas_ipsp = int.Parse(fields[17]);
+                acta._21f = int.Parse(fields[18]);
+                acta.pdc = int.Parse(fields[19]);
+                acta.mnr = int.Parse(fields[20]);
+                acta.pan_bol = int.Parse(fields[21]);
+                acta.votos_validos = int.Parse(fields[22]);
+                acta.blancos = int.Parse(fields[23]);
+                acta.nulos = int.Parse(fields[24]);
 
             return acta;    
         }
