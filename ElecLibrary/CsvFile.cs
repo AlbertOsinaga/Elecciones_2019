@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.IO;
 using OfficeOpenXml;
+using System;
 
 namespace ElecLibrary
 {
@@ -61,7 +62,7 @@ namespace ElecLibrary
             string[] fields = rowActaCsv.Split(',');
             if(fields.Length != 26)
                 return null;
-            
+
             var nameKeys = Path.GetFileNameWithoutExtension(repoCsvName);
             var origenFecha = nameKeys.Split('_');
 
@@ -99,11 +100,14 @@ namespace ElecLibrary
 
             return acta;    
         }
+
         public static Acta GetActaTrep(string rowActaCsv, string repoCsvName = "_")
         {
             if(string.IsNullOrWhiteSpace(rowActaCsv))
                 return null;
             string[] fields = rowActaCsv.Split(',');
+            if(fields.Length > 25)
+                fields = DepurarLocalidad(fields);
             if(fields.Length != 25)
                 return null;
             
@@ -149,6 +153,8 @@ namespace ElecLibrary
             if(string.IsNullOrWhiteSpace(rowActaCsv))
                 return null;
             string[] fields = rowActaCsv.Split(',');
+            if(fields.Length > 26)
+                fields = DepurarLocalidad(fields);
             if(fields.Length != 26)
                 return null;
             
@@ -189,8 +195,11 @@ namespace ElecLibrary
             if(string.IsNullOrWhiteSpace(rowActaCsv))
                 return null;
             string[] fields = rowActaCsv.Split(',');
+            if(fields.Length > 25)
+                fields = DepurarLocalidad(fields);
             if(fields.Length != 25)
                 return null;
+            
             
             var acta = new PgActaTrep();
                 acta.pais = fields[0];
@@ -221,6 +230,21 @@ namespace ElecLibrary
 
             return acta;    
         }
+        private static string[] DepurarLocalidad(string[] fields)
+        {
+            List<string> newFields = new List<string>();
+            for (int i = 0; i < 8; i++)
+            {
+                newFields.Add(fields[i]);    
+            }
+            newFields.Add(fields[8] + "-" + fields[9]);
+            for (int i = 10; i < fields.Length; i++)
+            {
+                newFields.Add(fields[i]);    
+            }
+            return newFields.ToArray();
+        }
+
         public static string ReadAll(string fileName)
         {
             var memFile = File.ReadAllText(fileName);
@@ -364,7 +388,10 @@ namespace ElecLibrary
                     for (int j = worksheet.Dimension.Start.Column; j <= worksheet.Dimension.End.Column; j++)
                     {
                         //add the cell data to the List
-                        row += worksheet.Cells[i, j].Value != null ? worksheet.Cells[i, j].Value.ToString() : "";
+                        string newRow = worksheet.Cells[i, j].Value != null ? worksheet.Cells[i, j].Value.ToString() : "";
+                        while(newRow.Contains(","))
+                            newRow = newRow.Replace(",","-");
+                        row += newRow;
                         if(j < worksheet.Dimension.End.Column)
                             row += ",";
                     }
